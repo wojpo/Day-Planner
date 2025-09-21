@@ -98,49 +98,70 @@ class Task {
         this.desc.placeholder = 'Task description...';
         this.desc.value = this.descValue;
         this.desc.className = 'w-full bg-gray-700 text-gray-200 text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400';
-        this.desc.addEventListener('input', () => { this.descValue = this.desc.value; tasksChanged = true; debouncedSave(); });
+        this.desc.addEventListener('input', () => {
+            this.descValue = this.desc.value;
+            tasksChanged = true;
+            debouncedSave();
+        });
 
-        // Time inputs
+        // Time inputs container
         const timeContainer = document.createElement('div');
         timeContainer.className = 'flex flex-col md:flex-row gap-2 md:gap-4 items-center';
 
+        // Hours wrapper and input
+        const hoursWrapper = document.createElement('div');
+        hoursWrapper.className = 'flex flex-col w-full md:w-1/2';
+        const hoursLabel = document.createElement('label');
+        hoursLabel.textContent = 'Hours';
+        hoursLabel.className = 'text-gray-200 text-sm mb-1';
         this.hoursInput = document.createElement('input');
         this.hoursInput.type = 'number';
         this.hoursInput.min = 0;
         this.hoursInput.placeholder = 'Hours';
         this.hoursInput.value = this.hoursValue;
-        this.hoursInput.className = 'hours-input w-full md:w-1/2 bg-gray-700 text-gray-200 text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400';
+        this.hoursInput.className = 'hours-input w-full bg-gray-700 text-gray-200 text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400';
         this.hoursInput.addEventListener('input', () => {
-            this.hoursValue = parseInt(this.hoursInput.value,10) || 0;
+            this.hoursValue = parseInt(this.hoursInput.value, 10) || 0;
             if (!this.running) this.remaining = this.hoursValue * 3600 + this.minutesValue * 60;
             tasksChanged = true;
             debouncedSave();
             this.updateDisplay();
         });
+        hoursWrapper.appendChild(hoursLabel);
+        hoursWrapper.appendChild(this.hoursInput);
 
+        // Minutes wrapper and input
+        const minutesWrapper = document.createElement('div');
+        minutesWrapper.className = 'flex flex-col w-full md:w-1/2';
+        const minutesLabel = document.createElement('label');
+        minutesLabel.textContent = 'Minutes';
+        minutesLabel.className = 'text-gray-200 text-sm mb-1';
         this.minutesInput = document.createElement('input');
         this.minutesInput.type = 'number';
         this.minutesInput.min = 0;
         this.minutesInput.max = 59;
         this.minutesInput.placeholder = 'Minutes';
         this.minutesInput.value = this.minutesValue;
-        this.minutesInput.className = 'minutes-input w-full md:w-1/2 bg-gray-700 text-gray-200 text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400';
+        this.minutesInput.className = 'minutes-input w-full bg-gray-700 text-gray-200 text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400';
         this.minutesInput.addEventListener('input', () => {
-            this.minutesValue = parseInt(this.minutesInput.value,10) || 0;
+            this.minutesValue = parseInt(this.minutesInput.value, 10) || 0;
             if (!this.running) this.remaining = this.hoursValue * 3600 + this.minutesValue * 60;
             tasksChanged = true;
             debouncedSave();
             this.updateDisplay();
         });
+        minutesWrapper.appendChild(minutesLabel);
+        minutesWrapper.appendChild(this.minutesInput);
 
-        timeContainer.appendChild(this.hoursInput);
-        timeContainer.appendChild(this.minutesInput);
+        // Add wrappers to time container
+        timeContainer.appendChild(hoursWrapper);
+        timeContainer.appendChild(minutesWrapper);
 
         // Timer display
         this.timerDisplay = document.createElement('div');
         this.timerDisplay.className = 'text-center text-lg font-mono text-green-400 bg-gray-900 p-1 rounded w-full';
 
-        // Buttons
+        // Buttons container
         const buttonsContainer = document.createElement('div');
         buttonsContainer.className = 'flex flex-col md:flex-row gap-2 justify-end w-full';
 
@@ -156,6 +177,7 @@ class Task {
         buttonsContainer.appendChild(this.playBtn);
         buttonsContainer.appendChild(this.deleteBtn);
 
+        // Append everything to task element
         this.taskEl.appendChild(this.desc);
         this.taskEl.appendChild(timeContainer);
         this.taskEl.appendChild(this.timerDisplay);
