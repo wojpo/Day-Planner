@@ -108,7 +108,6 @@ class Task {
         this.hoursInput.type = 'number';
         this.hoursInput.min = 0;
         this.hoursInput.placeholder = 'Hours';
-        this.hoursInput.value = this.hoursValue;
         this.hoursInput.className = 'hours-input w-full md:w-1/2 bg-gray-700 text-gray-200 text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400';
         this.hoursInput.addEventListener('input', () => {
             this.hoursValue = parseInt(this.hoursInput.value,10) || 0;
@@ -123,7 +122,6 @@ class Task {
         this.minutesInput.min = 0;
         this.minutesInput.max = 59;
         this.minutesInput.placeholder = 'Minutes';
-        this.minutesInput.value = this.minutesValue;
         this.minutesInput.className = 'minutes-input w-full md:w-1/2 bg-gray-700 text-gray-200 text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400';
         this.minutesInput.addEventListener('input', () => {
             this.minutesValue = parseInt(this.minutesInput.value,10) || 0;
