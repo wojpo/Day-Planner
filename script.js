@@ -2,6 +2,7 @@ const toggleMenu = document.getElementById('toggleMenu');
 const settingsMenu = document.getElementById('settingsMenu');
 const dayColumns = document.querySelectorAll('.grid > div');
 
+// Toggle settings menu
 toggleMenu.addEventListener('click', () => {
     settingsMenu.classList.toggle('menu-hidden');
     settingsMenu.classList.toggle('menu-visible');
@@ -16,35 +17,6 @@ function debounce(fn, delay = 300) {
         timer = setTimeout(() => fn(...args), delay);
     };
 }
-
-// Task storage
-let tasks = [];
-let tasksChanged = false;
-let timerInterval = null;
-
-// Request notification permission once
-if ("Notification" in window && Notification.permission === "default") {
-    Notification.requestPermission();
-}
-
-// Save tasks to localStorage
-function saveTasks() {
-    const taskData = tasks.map(task => ({
-        dayIndex: task.dayIndex,
-        desc: task.desc.value,
-        hours: task.hours.value,
-        minutes: task.minutes.value,
-        remaining: task.remaining,
-        running: task.running
-    }));
-    localStorage.setItem('tasks', JSON.stringify(taskData));
-    tasksChanged = false;
-}
-const debouncedSave = debounce(saveTasks, 500);
-
-// Load saved tasks
-const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
-savedTasks.forEach(task => createTask(task.dayIndex, task));
 
 // Beep sound
 function playBeep() {
@@ -64,165 +36,212 @@ function notifyTaskFinished(taskDesc) {
     }
 }
 
-// Update timer display
-function updateTimerDisplay(task) {
-    const hrs = Math.floor(task.remaining / 3600);
-    const mins = Math.floor((task.remaining % 3600) / 60);
-    const secs = task.remaining % 60;
-    task.timerDisplay.textContent = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+// Request notification permission once
+if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission();
 }
 
-// Style finished task
-function styleFinishedTask(task) {
-    task.taskEl.classList.remove('border-2','border-green-500');
-    task.timerDisplay.classList.add('opacity-50');
-}
+// Task storage
+let tasks = [];
+let tasksChanged = false;
 
-// Move finished task to top of column
-function moveFinishedTaskToTop(task) {
-    const column = dayColumns[task.dayIndex].querySelector('.space-y-3');
-    column.prepend(task.taskEl);
+// Save tasks
+function saveTasks() {
+    const taskData = tasks.map(task => task.serialize());
+    localStorage.setItem('tasks', JSON.stringify(taskData));
+    tasksChanged = false;
 }
+const debouncedSave = debounce(saveTasks, 500);
 
-// Start global timer once
+// Global timer
+let timerInterval = null;
 function startGlobalTimer() {
     if (timerInterval) return;
     timerInterval = setInterval(() => {
-        let needSave = false;
-        tasks.forEach(task => {
-            if (!task.running) return;
-            if (task.remaining <= 0) {
-                task.remaining = 0;
-                task.running = false;
-                task.playBtn.textContent = 'Start';
-                styleFinishedTask(task);
-                moveFinishedTaskToTop(task);
-                playBeep();
-                notifyTaskFinished(task.desc.value);
-            } else {
-                task.remaining--;
-            }
-            updateTimerDisplay(task);
-            needSave = true;
-        });
-        if (needSave || tasksChanged) saveTasks();
+        const runningTasks = tasks.filter(t => t.running);
+        if (!runningTasks.length) return;
+        runningTasks.forEach(task => task.tick());
+        if (tasksChanged) debouncedSave();
     }, 1000);
 }
 
-// Create task
-function createTask(dayIndex, data = {}) {
-    const column = dayColumns[dayIndex].querySelector('.space-y-3');
+// Task class
+class Task {
+    constructor(dayIndex, data = {}) {
+        this.dayIndex = dayIndex;
+        this.descValue = data.desc || '';
+        this.hoursValue = parseInt(data.hours, 10) || 0;
+        this.minutesValue = parseInt(data.minutes, 10) || 0;
+        this.remaining = data.remaining !== undefined ? parseInt(data.remaining, 10) : this.hoursValue * 3600 + this.minutesValue * 60;
+        this.running = data.running || false;
 
-    const taskEl = document.createElement('div');
-    taskEl.className = 'task-item p-4 bg-gray-800 rounded-xl flex flex-col gap-3 shadow-lg w-full';
+        this.column = dayColumns[dayIndex].querySelector('.space-y-3');
+        this.createDOM();
+        this.updateDisplay();
 
-    const desc = document.createElement('input');
-    desc.type = 'text';
-    desc.placeholder = 'Task description...';
-    desc.value = data.desc || '';
-    desc.className = 'w-full bg-gray-700 text-gray-200 text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400';
-    desc.addEventListener('input', () => { tasksChanged = true; debouncedSave(); });
+        if (this.running) startGlobalTimer();
 
-    const timeContainer = document.createElement('div');
-    timeContainer.className = 'flex flex-col md:flex-row gap-2 md:gap-4 items-center';
-
-    const hoursInput = document.createElement('input');
-    hoursInput.type = 'number';
-    hoursInput.min = 0;
-    hoursInput.placeholder = 'Hours';
-    hoursInput.value = data.hours || 0;
-    hoursInput.className = 'hours-input w-full md:w-1/2 bg-gray-700 text-gray-200 text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400';
-    hoursInput.addEventListener('input', () => { tasksChanged = true; debouncedSave(); });
-
-    const minutesInput = document.createElement('input');
-    minutesInput.type = 'number';
-    minutesInput.min = 0;
-    minutesInput.max = 59;
-    minutesInput.placeholder = 'Minutes';
-    minutesInput.value = data.minutes || 0;
-    minutesInput.className = 'minutes-input w-full md:w-1/2 bg-gray-700 text-gray-200 text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400';
-    minutesInput.addEventListener('input', () => { tasksChanged = true; debouncedSave(); });
-
-    timeContainer.appendChild(hoursInput);
-    timeContainer.appendChild(minutesInput);
-
-    const timerDisplay = document.createElement('div');
-    timerDisplay.className = 'text-center text-lg font-mono text-green-400 bg-gray-900 p-1 rounded w-full';
-
-    const buttonsContainer = document.createElement('div');
-    buttonsContainer.className = 'flex flex-col md:flex-row gap-2 justify-end w-full';
-
-    const playBtn = document.createElement('button');
-    playBtn.className = 'bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded w-full md:w-auto';
-
-    const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'Delete';
-    deleteBtn.className = 'bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded w-full md:w-auto';
-
-    buttonsContainer.appendChild(playBtn);
-    buttonsContainer.appendChild(deleteBtn);
-
-    taskEl.appendChild(desc);
-    taskEl.appendChild(timeContainer);
-    taskEl.appendChild(timerDisplay);
-    taskEl.appendChild(buttonsContainer);
-    column.appendChild(taskEl);
-
-    const taskObj = {
-        dayIndex,
-        taskEl,
-        desc,
-        hours: hoursInput,
-        minutes: minutesInput,
-        timerDisplay,
-        playBtn,
-        remaining: (data.remaining !== undefined) ? parseInt(data.remaining,10) : (parseInt(hoursInput.value,10)*3600 + parseInt(minutesInput.value,10)*60),
-        running: data.running || false
-    };
-    tasks.push(taskObj);
-
-    updateTimerDisplay(taskObj);
-
-    if(taskObj.remaining > 0 && taskObj.running){
-        taskEl.classList.add('border-2','border-green-500');
-        playBtn.textContent = 'Pause';
-    } else {
-        playBtn.textContent = 'Start';
+        tasks.push(this);
+        tasksChanged = true;
+        debouncedSave();
     }
 
-    playBtn.addEventListener('click', () => {
-        if(taskObj.running){
-            taskObj.running = false;
-            taskEl.classList.remove('border-2','border-green-500');
-            playBtn.textContent = 'Resume';
+    createDOM() {
+        // Task container
+        this.taskEl = document.createElement('div');
+        this.taskEl.className = 'task-item p-4 bg-gray-800 rounded-xl flex flex-col gap-3 shadow-lg w-full';
+        this.column.appendChild(this.taskEl);
+
+        // Description
+        this.desc = document.createElement('input');
+        this.desc.type = 'text';
+        this.desc.placeholder = 'Task description...';
+        this.desc.value = this.descValue;
+        this.desc.className = 'w-full bg-gray-700 text-gray-200 text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400';
+        this.desc.addEventListener('input', () => { this.descValue = this.desc.value; tasksChanged = true; debouncedSave(); });
+
+        // Time inputs
+        const timeContainer = document.createElement('div');
+        timeContainer.className = 'flex flex-col md:flex-row gap-2 md:gap-4 items-center';
+
+        this.hoursInput = document.createElement('input');
+        this.hoursInput.type = 'number';
+        this.hoursInput.min = 0;
+        this.hoursInput.placeholder = 'Hours';
+        this.hoursInput.value = this.hoursValue;
+        this.hoursInput.className = 'hours-input w-full md:w-1/2 bg-gray-700 text-gray-200 text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400';
+        this.hoursInput.addEventListener('input', () => {
+            this.hoursValue = parseInt(this.hoursInput.value,10) || 0;
+            if (!this.running) this.remaining = this.hoursValue * 3600 + this.minutesValue * 60;
+            tasksChanged = true;
+            debouncedSave();
+            this.updateDisplay();
+        });
+
+        this.minutesInput = document.createElement('input');
+        this.minutesInput.type = 'number';
+        this.minutesInput.min = 0;
+        this.minutesInput.max = 59;
+        this.minutesInput.placeholder = 'Minutes';
+        this.minutesInput.value = this.minutesValue;
+        this.minutesInput.className = 'minutes-input w-full md:w-1/2 bg-gray-700 text-gray-200 text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400';
+        this.minutesInput.addEventListener('input', () => {
+            this.minutesValue = parseInt(this.minutesInput.value,10) || 0;
+            if (!this.running) this.remaining = this.hoursValue * 3600 + this.minutesValue * 60;
+            tasksChanged = true;
+            debouncedSave();
+            this.updateDisplay();
+        });
+
+        timeContainer.appendChild(this.hoursInput);
+        timeContainer.appendChild(this.minutesInput);
+
+        // Timer display
+        this.timerDisplay = document.createElement('div');
+        this.timerDisplay.className = 'text-center text-lg font-mono text-green-400 bg-gray-900 p-1 rounded w-full';
+
+        // Buttons
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.className = 'flex flex-col md:flex-row gap-2 justify-end w-full';
+
+        this.playBtn = document.createElement('button');
+        this.playBtn.className = 'bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded w-full md:w-auto';
+        this.playBtn.addEventListener('click', () => this.toggle());
+
+        this.deleteBtn = document.createElement('button');
+        this.deleteBtn.textContent = 'Delete';
+        this.deleteBtn.className = 'bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded w-full md:w-auto';
+        this.deleteBtn.addEventListener('click', () => this.delete());
+
+        buttonsContainer.appendChild(this.playBtn);
+        buttonsContainer.appendChild(this.deleteBtn);
+
+        this.taskEl.appendChild(this.desc);
+        this.taskEl.appendChild(timeContainer);
+        this.taskEl.appendChild(this.timerDisplay);
+        this.taskEl.appendChild(buttonsContainer);
+    }
+
+    updateDisplay() {
+        const hrs = Math.floor(this.remaining / 3600);
+        const mins = Math.floor((this.remaining % 3600) / 60);
+        const secs = this.remaining % 60;
+        this.timerDisplay.textContent = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+
+        this.taskEl.classList.toggle('border-2', this.running);
+        this.taskEl.classList.toggle('border-green-500', this.running);
+
+        this.playBtn.textContent = this.running ? 'Pause' : (this.remaining > 0 ? 'Resume' : 'Start');
+    }
+
+    tick() {
+        if (!this.running) return;
+        if (this.remaining <= 0) {
+            this.finish();
         } else {
-            if(taskObj.remaining <= 0){
-                taskObj.remaining = parseInt(hoursInput.value,10)*3600 + parseInt(minutesInput.value,10)*60;
-                if(taskObj.remaining <= 0) return;
+            this.remaining--;
+            this.updateDisplay();
+            tasksChanged = true;
+        }
+    }
+
+    toggle() {
+        if (this.running) {
+            this.running = false;
+        } else {
+            if (this.remaining <= 0) {
+                this.remaining = this.hoursValue * 3600 + this.minutesValue * 60;
+                if (this.remaining <= 0) return;
             }
-            taskObj.running = true;
-            taskEl.classList.add('border-2','border-green-500');
-            playBtn.textContent = 'Pause';
+            this.running = true;
             startGlobalTimer();
         }
+        this.updateDisplay();
         tasksChanged = true;
-        saveTasks();
-    });
+        debouncedSave();
+    }
 
-    deleteBtn.addEventListener('click', () => {
-        taskObj.running = false;
-        taskObj.taskEl.remove();
-        tasks = tasks.filter(t => t !== taskObj);
+    finish() {
+        this.running = false;
+        this.remaining = 0;
+        this.updateDisplay();
+        this.column.prepend(this.taskEl);
+        playBeep();
+        notifyTaskFinished(this.descValue);
+    }
+
+    delete() {
+        this.running = false;
+        this.taskEl.remove();
+        tasks = tasks.filter(t => t !== this);
         tasksChanged = true;
-        saveTasks();
-    });
+        debouncedSave();
+    }
 
-    tasksChanged = true;
-    saveTasks();
+    serialize() {
+        return {
+            dayIndex: this.dayIndex,
+            desc: this.descValue,
+            hours: this.hoursValue,
+            minutes: this.minutesValue,
+            remaining: this.remaining,
+            running: this.running
+        };
+    }
 }
 
+// Load saved tasks
+try {
+    const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    savedTasks.forEach(task => new Task(task.dayIndex, task));
+} catch(e) {
+    console.warn('Failed to load tasks from localStorage', e);
+}
+
+// Add-task buttons
 document.querySelectorAll('.add-task').forEach((btn, idx) => {
-    btn.addEventListener('click', () => createTask(idx));
+    btn.addEventListener('click', () => new Task(idx));
 });
 
+// Start timer
 startGlobalTimer();
