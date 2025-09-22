@@ -1,3 +1,5 @@
+// TaskManager.js (updated for variable usage in createDOM)
+
 const dayColumns = document.querySelectorAll('.grid > div');
 
 // Debounce helper
@@ -80,7 +82,7 @@ class Task {
     createDOM() {
         // Task container
         this.taskEl = document.createElement('div');
-        this.taskEl.className = 'task-item p-4 bg-gray-800 rounded-xl flex flex-col gap-3 shadow-lg w-full';
+        this.taskEl.className = 'task-item p-4 bg-[var(--bg-task)] rounded-xl flex flex-col gap-3 shadow-lg w-full';
         this.column.appendChild(this.taskEl);
 
         // Description
@@ -88,7 +90,7 @@ class Task {
         this.desc.type = 'text';
         this.desc.placeholder = 'Task description...';
         this.desc.value = this.descValue;
-        this.desc.className = 'w-full bg-gray-700 text-gray-200 text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400';
+        this.desc.className = 'w-full bg-[var(--bg-input)] text-[var(--text-input)] text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--ring-focus)]';
         this.desc.addEventListener('input', () => { this.descValue = this.desc.value; tasksChanged = true; debouncedSave(); });
 
         // Time inputs
@@ -99,7 +101,7 @@ class Task {
         this.hoursInput.type = 'number';
         this.hoursInput.min = 0;
         this.hoursInput.placeholder = 'Hours';
-        this.hoursInput.className = 'hours-input w-full md:w-1/2 bg-gray-700 text-gray-200 text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400';
+        this.hoursInput.className = 'hours-input w-full md:w-1/2 bg-[var(--bg-input)] text-[var(--text-input)] text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--ring-focus)]';
         this.hoursInput.addEventListener('input', () => {
             this.hoursValue = parseInt(this.hoursInput.value,10) || 0;
             if (!this.running) this.remaining = this.hoursValue * 3600 + this.minutesValue * 60;
@@ -113,7 +115,7 @@ class Task {
         this.minutesInput.min = 0;
         this.minutesInput.max = 59;
         this.minutesInput.placeholder = 'Minutes';
-        this.minutesInput.className = 'minutes-input w-full md:w-1/2 bg-gray-700 text-gray-200 text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400';
+        this.minutesInput.className = 'minutes-input w-full md:w-1/2 bg-[var(--bg-input)] text-[var(--text-input)] text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--ring-focus)]';
         this.minutesInput.addEventListener('input', () => {
             this.minutesValue = parseInt(this.minutesInput.value,10) || 0;
             if (!this.running) this.remaining = this.hoursValue * 3600 + this.minutesValue * 60;
@@ -127,19 +129,19 @@ class Task {
 
         // Timer display
         this.timerDisplay = document.createElement('div');
-        this.timerDisplay.className = 'text-center text-lg font-mono text-green-400 bg-gray-900 p-1 rounded w-full';
+        this.timerDisplay.className = 'text-center text-lg font-mono text-[var(--text-timer)] bg-[var(--bg-timer)] p-1 rounded w-full';
 
         // Buttons
         const buttonsContainer = document.createElement('div');
         buttonsContainer.className = 'flex flex-col md:flex-row gap-2 justify-end w-full';
 
         this.playBtn = document.createElement('button');
-        this.playBtn.className = 'bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded w-full md:w-auto';
+        this.playBtn.className = 'bg-[var(--bg-play)] hover:bg-[var(--bg-play-hover)] text-[var(--text-button)] px-3 py-1 rounded w-full md:w-auto';
         this.playBtn.addEventListener('click', () => this.toggle());
 
         this.deleteBtn = document.createElement('button');
         this.deleteBtn.textContent = 'Delete';
-        this.deleteBtn.className = 'bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded w-full md:w-auto';
+        this.deleteBtn.className = 'bg-[var(--bg-delete)] hover:bg-[var(--bg-delete-hover)] text-[var(--text-button)] px-3 py-1 rounded w-full md:w-auto';
         this.deleteBtn.addEventListener('click', () => this.delete());
 
         buttonsContainer.appendChild(this.playBtn);
@@ -158,7 +160,7 @@ class Task {
         this.timerDisplay.textContent = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
 
         this.taskEl.classList.toggle('border-2', this.running);
-        this.taskEl.classList.toggle('border-green-500', this.running);
+        this.taskEl.classList.toggle('border-[var(--border-running)]', this.running);
 
         this.playBtn.textContent = this.running ? 'Pause' : 'Resume'
     }

@@ -6,6 +6,32 @@
     <title>Day Planner</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        :root {
+            --bg-body: #030712; /* gray-950 */
+            --text-body: #e5e7eb; /* gray-200 */
+            --bg-panel: #111827; /* gray-900 */
+            --text-header: #f3f4f6; /* gray-100 */
+            --accent-add: #60a5fa; /* blue-400 */
+            --accent-add-hover: #93c5fd; /* blue-300 */
+            --bg-task: #1f2937; /* gray-800 */
+            --bg-input: #374151; /* gray-700 */
+            --text-input: #e5e7eb; /* gray-200 */
+            --ring-focus: #4ade80; /* green-400 */
+            --text-timer: #4ade80; /* green-400 */
+            --bg-timer: #111827; /* gray-900 */
+            --bg-play: #16a34a; /* green-600 */
+            --bg-play-hover: #22c55e; /* green-500 */
+            --text-button: #ffffff; /* white */
+            --bg-delete: #dc2626; /* red-600 */
+            --bg-delete-hover: #ef4444; /* red-500 */
+            --bg-toggle: #1f2937; /* gray-800 */
+            --bg-toggle-hover: #374151; /* gray-700 */
+            --text-toggle: #ffffff; /* white */
+            --accent-settings-hover: #3b82f6; /* blue-500 */
+            --border-secondary: #1f2937; /* gray-800 */
+            --border-running: #22c55e; /* green-500 */
+        }
+
         .menu-hidden {
             transform: translateX(-100%);
         }
@@ -15,71 +41,172 @@
         .button-shifted {
             transform: translateX(16rem);
         }
+
+        input[type="color"] {
+            @apply w-10 h-10 rounded-md cursor-pointer border-2 border-gray-600;
+        }
     </style>
 </head>
-<body class="bg-gray-950 text-gray-200 min-h-screen font-sans p-4 flex">
-<div id="settingsMenu" class="fixed top-0 left-0 h-full w-64 bg-gray-900 text-gray-200 p-4 transition-transform duration-300 ease-in-out menu-hidden z-10">
-    <h2 class="text-xl font-semibold text-gray-100 border-b border-gray-800 pb-2 mb-4">Settings</h2>
-    <ul class="space-y-3">
-        <li><a href="#" class="hover:text-blue-500">Theme</a></li>
-        <li><a href="#" class="hover:text-blue-500">Time Format</a></li>
-        <li><a href="#" class="hover:text-blue-500">Reset Planner</a></li>
+<body class="bg-[var(--bg-body)] text-[var(--text-body)] min-h-screen font-sans p-4 flex">
+<div id="settingsMenu" class="fixed top-0 left-0 h-full w-64 bg-[var(--bg-panel)] text-[var(--text-body)] p-4 transition-transform duration-300 ease-in-out menu-hidden z-10">
+    <h2 class="text-xl font-semibold text-[var(--text-header)] border-b border-[var(--border-secondary)] pb-2 mb-4">Settings</h2>
+    <ul id="mainSettings" class="space-y-3">
+        <li><a id="themeLink" href="#" class="hover:text-[var(--accent-settings-hover)]">Theme</a></li>
+        <li><a href="#" class="hover:text-[var(--accent-settings-hover)]"></a></li>
+        <li><a href="#" class="hover:text-[var(--accent-settings-hover)]"></a></li>
     </ul>
+    <div id="themeSettings" class="hidden space-y-4">
+        <button id="backToSettings" class="text-[var(--accent-add)] hover:text-[var(--accent-add-hover)] text-sm font-medium">← Back</button>
+        <div class="space-y-4 overflow-y-auto max-h-[calc(100vh-10rem)] pr-2">
+            <div class="flex items-center justify-between">
+                <label for="bodyBg" class="text-sm font-medium">Body Background</label>
+                <input type="color" id="bodyBg">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="panelBg" class="text-sm font-medium">Panel Background</label>
+                <input type="color" id="panelBg">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="textBody" class="text-sm font-medium">Body Text</label>
+                <input type="color" id="textBody">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="textHeader" class="text-sm font-medium">Header Text</label>
+                <input type="color" id="textHeader">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="accentAdd" class="text-sm font-medium">Add Task Color</label>
+                <input type="color" id="accentAdd">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="accentAddHover" class="text-sm font-medium">Add Task Hover</label>
+                <input type="color" id="accentAddHover">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="bgTask" class="text-sm font-medium">Task Background</label>
+                <input type="color" id="bgTask">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="bgInput" class="text-sm font-medium">Input Background</label>
+                <input type="color" id="bgInput">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="textInput" class="text-sm font-medium">Input Text</label>
+                <input type="color" id="textInput">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="ringFocus" class="text-sm font-medium">Focus Ring</label>
+                <input type="color" id="ringFocus">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="textTimer" class="text-sm font-medium">Timer Text</label>
+                <input type="color" id="textTimer">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="bgTimer" class="text-sm font-medium">Timer Background</label>
+                <input type="color" id="bgTimer">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="bgPlay" class="text-sm font-medium">Play Button</label>
+                <input type="color" id="bgPlay">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="bgPlayHover" class="text-sm font-medium">Play Button Hover</label>
+                <input type="color" id="bgPlayHover">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="bgDelete" class="text-sm font-medium">Delete Button</label>
+                <input type="color" id="bgDelete">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="bgDeleteHover" class="text-sm font-medium">Delete Button Hover</label>
+                <input type="color" id="bgDeleteHover">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="textButton" class="text-sm font-medium">Button Text</label>
+                <input type="color" id="textButton">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="bgToggle" class="text-sm font-medium">Toggle Button</label>
+                <input type="color" id="bgToggle">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="bgToggleHover" class="text-sm font-medium">Toggle Button Hover</label>
+                <input type="color" id="bgToggleHover">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="textToggle" class="text-sm font-medium">Toggle Text</label>
+                <input type="color" id="textToggle">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="accentSettingsHover" class="text-sm font-medium">Settings Hover</label>
+                <input type="color" id="accentSettingsHover">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="borderSecondary" class="text-sm font-medium">Secondary Border</label>
+                <input type="color" id="borderSecondary">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="borderRunning" class="text-sm font-medium">Running Border</label>
+                <input type="color" id="borderRunning">
+            </div>
+        </div>
+    </div>
 </div>
 <div class="flex-1">
-    <button id="toggleMenu" class="fixed top-4 left-4 bg-gray-800 hover:bg-gray-700 text-white p-2 rounded-full z-20 transition-transform duration-300">
+    <button id="toggleMenu" class="fixed top-4 left-4 bg-[var(--bg-toggle)] hover:bg-[var(--bg-toggle-hover)] text-[var(--text-toggle)] p-2 rounded-full z-20 transition-transform duration-300">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
     </button>
     <div class="grid grid-cols-1 h-[calc(100vh-6rem)] lg:grid-cols-7 gap-4 mt-12">
-        <div class="p-4 bg-gray-900 rounded-lg lg:overflow-auto">
-            <div class="flex items-center justify-between border-b border-gray-800 pb-2 mb-3">
-                <h2 class="font-semibold text-lg text-gray-100">Monday</h2>
-                <button class="add-task text-blue-400 hover:text-blue-300 text-sm font-medium">+ Add Task</button>
+        <div class="p-4 bg-[var(--bg-panel)] rounded-lg lg:overflow-auto">
+            <div class="flex items-center justify-between border-b border-[var(--border-secondary)] pb-2 mb-3">
+                <h2 class="font-semibold text-lg text-[var(--text-header)]">Monday</h2>
+                <button class="add-task text-[var(--accent-add)] hover:text-[var(--accent-add-hover)] text-sm font-medium">+ Add Task</button>
             </div>
             <div class="space-y-3 day"></div>
         </div>
-        <div class="p-4 bg-gray-900 rounded-lg lg:overflow-auto">
-            <div class="flex items-center justify-between border-b border-gray-800 pb-2 mb-3">
-                <h2 class="font-semibold text-lg text-gray-100">Tuesday</h2>
-                <button class="add-task text-blue-400 hover:text-blue-300 text-sm font-medium">+ Add Task</button>
+        <div class="p-4 bg-[var(--bg-panel)] rounded-lg lg:overflow-auto">
+            <div class="flex items-center justify-between border-b border-[var(--border-secondary)] pb-2 mb-3">
+                <h2 class="font-semibold text-lg text-[var(--text-header)]">Tuesday</h2>
+                <button class="add-task text-[var(--accent-add)] hover:text-[var(--accent-add-hover)] text-sm font-medium">+ Add Task</button>
             </div>
             <div class="space-y-3 day"></div>
         </div>
-        <div class="p-4 bg-gray-900 rounded-lg lg:overflow-auto">
-            <div class="flex items-center justify-between border-b border-gray-800 pb-2 mb-3">
-                <h2 class="font-semibold text-lg text-gray-100">Wednesday</h2>
-                <button class="add-task text-blue-400 hover:text-blue-300 text-sm font-medium">+ Add Task</button>
+        <div class="p-4 bg-[var(--bg-panel)] rounded-lg lg:overflow-auto">
+            <div class="flex items-center justify-between border-b border-[var(--border-secondary)] pb-2 mb-3">
+                <h2 class="font-semibold text-lg text-[var(--text-header)]">Wednesday</h2>
+                <button class="add-task text-[var(--accent-add)] hover:text-[var(--accent-add-hover)] text-sm font-medium">+ Add Task</button>
             </div>
             <div class="space-y-3 day"></div>
         </div>
-        <div class="p-4 bg-gray-900 rounded-lg lg:overflow-auto">
-            <div class="flex items-center justify-between border-b border-gray-800 pb-2 mb-3">
-                <h2 class="font-semibold text-lg text-gray-100">Thursday</h2>
-                <button class="add-task text-blue-400 hover:text-blue-300 text-sm font-medium">+ Add Task</button>
+        <div class="p-4 bg-[var(--bg-panel)] rounded-lg lg:overflow-auto">
+            <div class="flex items-center justify-between border-b border-[var(--border-secondary)] pb-2 mb-3">
+                <h2 class="font-semibold text-lg text-[var(--text-header)]">Thursday</h2>
+                <button class="add-task text-[var(--accent-add)] hover:text-[var(--accent-add-hover)] text-sm font-medium">+ Add Task</button>
             </div>
             <div class="space-y-3 day"></div>
         </div>
-        <div class="p-4 bg-gray-900 rounded-lg lg:overflow-auto">
-            <div class="flex items-center justify-between border-b border-gray-800 pb-2 mb-3">
-                <h2 class="font-semibold text-lg text-gray-100">Friday</h2>
-                <button class="add-task text-blue-400 hover:text-blue-300 text-sm font-medium">+ Add Task</button>
+        <div class="p-4 bg-[var(--bg-panel)] rounded-lg lg:overflow-auto">
+            <div class="flex items-center justify-between border-b border-[var(--border-secondary)] pb-2 mb-3">
+                <h2 class="font-semibold text-lg text-[var(--text-header)]">Friday</h2>
+                <button class="add-task text-[var(--accent-add)] hover:text-[var(--accent-add-hover)] text-sm font-medium">+ Add Task</button>
             </div>
             <div class="space-y-3 day"></div>
         </div>
-        <div class="p-4 bg-gray-900 rounded-lg lg:overflow-auto">
-            <div class="flex items-center justify-between border-b border-gray-800 pb-2 mb-3">
-                <h2 class="font-semibold text-lg text-gray-100">Saturday</h2>
-                <button class="add-task text-blue-400 hover:text-blue-300 text-sm font-medium">+ Add Task</button>
+        <div class="p-4 bg-[var(--bg-panel)] rounded-lg lg:overflow-auto">
+            <div class="flex items-center justify-between border-b border-[var(--border-secondary)] pb-2 mb-3">
+                <h2 class="font-semibold text-lg text-[var(--text-header)]">Saturday</h2>
+                <button class="add-task text-[var(--accent-add)] hover:text-[var(--accent-add-hover)] text-sm font-medium">+ Add Task</button>
             </div>
             <div class="space-y-3 day"></div>
         </div>
-        <div class="p-4 bg-gray-900 rounded-lg lg:overflow-auto">
-            <div class="flex items-center justify-between border-b border-gray-800 pb-2 mb-3">
-                <h2 class="font-semibold text-lg text-gray-100">Sunday</h2>
-                <button class="add-task text-blue-400 hover:text-blue-300 text-sm font-medium">+ Add Task</button>
+        <div class="p-4 bg-[var(--bg-panel)] rounded-lg lg:overflow-auto">
+            <div class="flex items-center justify-between border-b border-[var(--border-secondary)] pb-2 mb-3">
+                <h2 class="font-semibold text-lg text-[var(--text-header)]">Sunday</h2>
+                <button class="add-task text-[var(--accent-add)] hover:text-[var(--accent-add-hover)] text-sm font-medium">+ Add Task</button>
             </div>
             <div class="space-y-3 day"></div>
         </div>
