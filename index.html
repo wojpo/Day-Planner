@@ -30,6 +30,8 @@
             --accent-settings-hover: #3b82f6; /* blue-500 */
             --border-secondary: #1f2937; /* gray-800 */
             --border-running: #22c55e; /* green-500 */
+            --accent-reset: #f87171; /* red-400 */
+            --accent-reset-hover: #fca5a5; /* red-300 */
         }
 
         .menu-hidden {
@@ -52,11 +54,13 @@
     <h2 class="text-xl font-semibold text-[var(--text-header)] border-b border-[var(--border-secondary)] pb-2 mb-4">Settings</h2>
     <ul id="mainSettings" class="space-y-3">
         <li><a id="themeLink" href="#" class="hover:text-[var(--accent-settings-hover)]">Theme</a></li>
-        <li><a href="#" class="hover:text-[var(--accent-settings-hover)]"></a></li>
-        <li><a href="#" class="hover:text-[var(--accent-settings-hover)]"></a></li>
+        <li><a id="resetPlannerLink" href="#" class="hover:text-[var(--accent-settings-hover)]">Reset Planner</a></li>
     </ul>
     <div id="themeSettings" class="hidden space-y-4">
-        <button id="backToSettings" class="text-[var(--accent-add)] hover:text-[var(--accent-add-hover)] text-sm font-medium">← Back</button>
+        <div class="flex justify-between">
+            <button id="backToSettings" class="text-[var(--accent-add)] hover:text-[var(--accent-add-hover)] text-sm font-medium">← Back</button>
+            <button id="resetTheme" class="text-[var(--accent-reset)] hover:text-[var(--accent-reset-hover)] text-sm font-medium">Reset Theme</button>
+        </div>
         <div class="space-y-4 overflow-y-auto max-h-[calc(100vh-10rem)] pr-2">
             <div class="flex items-center justify-between">
                 <label for="bodyBg" class="text-sm font-medium">Body Background</label>
@@ -149,6 +153,14 @@
             <div class="flex items-center justify-between">
                 <label for="borderRunning" class="text-sm font-medium">Running Border</label>
                 <input type="color" id="borderRunning">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="accentReset" class="text-sm font-medium">Reset Color</label>
+                <input type="color" id="accentReset">
+            </div>
+            <div class="flex items-center justify-between">
+                <label for="accentResetHover" class="text-sm font-medium">Reset Hover</label>
+                <input type="color" id="accentResetHover">
             </div>
         </div>
     </div>

@@ -1,5 +1,3 @@
-// TaskManager.js (updated for variable usage in createDOM)
-
 const dayColumns = document.querySelectorAll('.grid > div');
 
 // Debounce helper

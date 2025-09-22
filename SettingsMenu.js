@@ -4,6 +4,7 @@ const themeLink = document.getElementById('themeLink');
 const backToSettings = document.getElementById('backToSettings');
 const mainSettings = document.getElementById('mainSettings');
 const themeSettings = document.getElementById('themeSettings');
+const resetTheme = document.getElementById('resetTheme');
 
 // Toggle settings menu
 toggleMenu.addEventListener('click', () => {
@@ -23,6 +24,18 @@ themeLink.addEventListener('click', (e) => {
 backToSettings.addEventListener('click', () => {
     mainSettings.classList.remove('hidden');
     themeSettings.classList.add('hidden');
+});
+
+// Reset planner (tasks)
+resetPlannerLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (confirm('Are you sure you want to reset the planner? This will delete all tasks.')) {
+        tasks = [];
+        localStorage.removeItem('tasks');
+        document.querySelectorAll('.day').forEach(day => {
+            day.innerHTML = '';
+        });
+    }
 });
 
 // Theme configuration
@@ -50,6 +63,8 @@ const themeConfig = [
     { id: 'accentSettingsHover', var: '--accent-settings-hover', default: '#3b82f6' },
     { id: 'borderSecondary', var: '--border-secondary', default: '#1f2937' },
     { id: 'borderRunning', var: '--border-running', default: '#22c55e' },
+    { id: 'accentReset', var: '--accent-reset', default: '#f87171' },
+    { id: 'accentResetHover', var: '--accent-reset-hover', default: '#fca5a5' },
 ];
 
 // Load saved theme
@@ -68,6 +83,18 @@ themeConfig.forEach(({ id, var: cssVar }) => {
         input.addEventListener('input', () => {
             document.documentElement.style.setProperty(cssVar, input.value);
             localStorage.setItem(`theme${id}`, input.value);
+        });
+    }
+});
+
+// Reset theme to default
+resetTheme.addEventListener('click', () => {
+    if (confirm('Are you sure you want to reset the theme to default?')) {
+        themeConfig.forEach(({ id, var: cssVar, default: def }) => {
+            localStorage.removeItem(`theme${id}`);
+            document.documentElement.style.setProperty(cssVar, def);
+            const input = document.getElementById(id);
+            if (input) input.value = def;
         });
     }
 });
