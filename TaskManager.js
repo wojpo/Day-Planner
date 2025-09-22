@@ -1,13 +1,4 @@
-const toggleMenu = document.getElementById('toggleMenu');
-const settingsMenu = document.getElementById('settingsMenu');
 const dayColumns = document.querySelectorAll('.grid > div');
-
-// Toggle settings menu
-toggleMenu.addEventListener('click', () => {
-    settingsMenu.classList.toggle('menu-hidden');
-    settingsMenu.classList.toggle('menu-visible');
-    toggleMenu.classList.toggle('button-shifted');
-});
 
 // Debounce helper
 function debounce(fn, delay = 300) {
@@ -75,7 +66,7 @@ class Task {
         this.remaining = data.remaining !== undefined ? parseInt(data.remaining, 10) : this.hoursValue * 3600 + this.minutesValue * 60;
         this.running = data.running || false;
 
-        this.column = dayColumns[dayIndex].querySelector('.space-y-3');
+        this.column = dayColumns[dayIndex].querySelector('.day');
         this.createDOM();
         this.updateDisplay();
 
@@ -169,7 +160,7 @@ class Task {
         this.taskEl.classList.toggle('border-2', this.running);
         this.taskEl.classList.toggle('border-green-500', this.running);
 
-        this.playBtn.textContent = this.running ? 'Pause' : (this.remaining > 0 ? 'Resume' : 'Start');
+        this.playBtn.textContent = this.running ? 'Pause' : 'Resume'
     }
 
     tick() {
