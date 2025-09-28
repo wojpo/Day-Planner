@@ -89,7 +89,11 @@ class Task {
         this.desc.placeholder = 'Task description...';
         this.desc.value = this.descValue;
         this.desc.className = 'w-full bg-[var(--bg-input)] text-[var(--text-input)] text-sm p-2 rounded focus:outline-none focus:ring-2 focus:ring-[var(--ring-focus)]';
-        this.desc.addEventListener('input', () => { this.descValue = this.desc.value; tasksChanged = true; debouncedSave(); });
+        this.desc.addEventListener('input', () => {
+            this.descValue = this.desc.value;
+            tasksChanged = true;
+            debouncedSave();
+        });
 
         // Time inputs
         const timeContainer = document.createElement('div');
@@ -131,15 +135,15 @@ class Task {
 
         // Buttons
         const buttonsContainer = document.createElement('div');
-        buttonsContainer.className = 'flex flex-col md:flex-row gap-2 justify-end w-full';
+        buttonsContainer.className = 'flex flex-wrap gap-2 justify-end w-full';
 
         this.playBtn = document.createElement('button');
-        this.playBtn.className = 'bg-[var(--bg-play)] hover:bg-[var(--bg-play-hover)] text-[var(--text-button)] px-3 py-1 rounded w-full md:w-auto';
+        this.playBtn.className = 'w-full sm:w-auto bg-[var(--bg-play)] hover:bg-[var(--bg-play-hover)] text-[var(--text-button)] px-3 py-1 rounded';
         this.playBtn.addEventListener('click', () => this.toggle());
 
         this.deleteBtn = document.createElement('button');
         this.deleteBtn.textContent = 'Delete';
-        this.deleteBtn.className = 'bg-[var(--bg-delete)] hover:bg-[var(--bg-delete-hover)] text-[var(--text-button)] px-3 py-1 rounded w-full md:w-auto';
+        this.deleteBtn.className = 'w-full sm:w-auto bg-[var(--bg-delete)] hover:bg-[var(--bg-delete-hover)] text-[var(--text-button)] px-3 py-1 rounded';
         this.deleteBtn.addEventListener('click', () => this.delete());
 
         buttonsContainer.appendChild(this.playBtn);
